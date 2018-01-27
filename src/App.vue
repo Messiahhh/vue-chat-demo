@@ -1,18 +1,10 @@
 <template>
-    <div id="app">
-        <router-view></router-view>
-    </div>
+    <router-view></router-view>
 </template>
 
 <script>
-import sidebar from './components/sidebar'
-import container from './components/container'
 export default {
-  name: 'app',
-  components: {
-      sidebar,
-      container,
-  }
+    name: 'app',
 }
 </script>
 

@@ -16,7 +16,7 @@ export default {
     },
     methods: {
         login() {
-            this.$router.push({path: '/index', query: {user: this.user}})
+            this.$router.push({path: 'index', query: {'user': this.user}})
         }
     },
 
@@ -29,7 +29,7 @@ export default {
     width 800px
     height 100vh
     margin 0 auto
-    background #000
+    background #409EFF
     color #fff
     position relative
     .loginPanel

@@ -34,15 +34,15 @@ server.listen(3000)
 //在线人数
 let userList = []
 io.on('connection', function(socket) {
-    socket.on('disconnect', reason => {
-        console.log(reason);
-    })
+    // socket.on('disconnect', reason => {
+    //     console.log(reason);
+    // })
     // console.log('a user connected');
     socket.on('login', (data) => {
         let id = socket.id
         let user = data.user
         userList.push({id, user})
-        io.emit('login', userList)
+        io.emit('login', {user, 'list': userList})
     })
 
     socket.on('disconnect', () => {
@@ -53,8 +53,7 @@ io.on('connection', function(socket) {
                 leaveUser = userList.splice(index, 1)
             }
         })
-        console.log(leaveUser)
-        socket.broadcast.emit('logout', leaveUser)
+        socket.broadcast.emit('logout', leaveUser[0].user)
     })
 
 
