@@ -1,8 +1,8 @@
 <template>
     <div class="login">
         <div class="loginPanel">
-            <h1>Hello {{user}}</h1>
-            <input type="text" v-model='user' @keyup.enter='login' autofocus>
+            <h1>Hello {{name}}</h1>
+            <input type="text" v-model='name' @keyup.enter='login' autofocus>
         </div>
     </div>
 </template>
@@ -11,12 +11,12 @@
 export default {
     data () {
         return {
-            user: '',
+            name: '',
         }
     },
     methods: {
         login() {
-            this.$router.push({path: 'index', query: {'user': this.user}})
+            this.$router.push({path: 'index', query: {'name': this.name}})
         }
     },
 

@@ -34,27 +34,32 @@ server.listen(3000)
 //在线人数
 let userList = []
 io.on('connection', function(socket) {
-    // socket.on('disconnect', reason => {
-    //     console.log(reason);
-    // })
-    // console.log('a user connected');
     socket.on('login', (data) => {
-        let id = socket.id
-        let user = data.user
-        userList.push({id, user})
-        io.emit('login', {user, 'list': userList})
+        let user = {
+            id: socket.id,
+            name: data.name,
+        }
+        userList.push(user)
+        io.emit('login', {user, userList})
     })
 
     socket.on('disconnect', () => {
         let id = socket.id
-        let leaveUser
+        let user
         userList.forEach((item, index) => {
             if (id === item.id) {
-                leaveUser = userList.splice(index, 1)
+                user = userList.splice(index, 1)
             }
         })
-        socket.broadcast.emit('logout', leaveUser[0].user)
+        // console.log(user);
+        socket.broadcast.emit('logout', user[0])
     })
 
-
+    socket.on('chat', data => {
+        userList.forEach((item, index) => {
+            if (data.id === item.id) {
+                io.emit('chat', Object.assign(item, data))
+            }
+        })
+    })
 });
