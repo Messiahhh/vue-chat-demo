@@ -11,14 +11,8 @@ const logger = require('koa-logger')
 const mysql = require('mysql')
 const Promise = require('bluebird')
 const koaBody = require('koa-body')
-let conn = mysql.createConnection({
-    host     : 'localhost',
-    user     : 'root',
-    password : 'S0budongnidexin',
-    database : 'node'
-})
+
 conn = Promise.promisifyAll(conn)
-conn.connect()
 
 let io = require('socket.io')(server)
 
