@@ -8,17 +8,31 @@ const Router = require('koa-router')
 const send = require('koa-send')
 const router = new Router()
 const logger = require('koa-logger')
-var io = require('socket.io')(server)
+const mysql = require('mysql')
+const Promise = require('bluebird')
+const koaBody = require('koa-body')
+let conn = mysql.createConnection({
+    host     : 'localhost',
+    user     : 'root',
+    password : 'S0budongnidexin',
+    database : 'node'
+})
+conn = Promise.promisifyAll(conn)
+conn.connect()
+
+let io = require('socket.io')(server)
 
 app.use(logger())
 app.use(static(path.join(__dirname, 'dist/')))
+app.use(koaBody())
 
 router
     .get('/', async (ctx, next) => {
         await send(ctx, './dist/index.html')
     })
-    .get('/test', async (ctx, next) => {
+    .post('/signup', async (ctx, next) => {
         // ctx.set('Access-Control-Allow-Origin', '*')
+        console.log(ctx.request.body)
         ctx.body = {
             status: 200,
             message: 'ok',
