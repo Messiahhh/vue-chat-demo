@@ -26,10 +26,10 @@ Mysql Setup
 ```javascript
 //cd ./mysql
 module.exports = {
-    host     : 'localhost',
-    user     : 'root',
-    password : 'S0budongnidexin',
-    database : 'node'
+    host,
+    user,
+    password,
+    database,
 }
 ```
 
