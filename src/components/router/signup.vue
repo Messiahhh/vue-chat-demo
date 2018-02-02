@@ -7,7 +7,8 @@
     <div class="">
         <el-input placeholder="请输入你的昵称" v-model="usr"></el-input>
         <el-input placeholder="请输入你的密码" v-model="pwd"></el-input>
-        <el-button :type='type' :loading="loading" @click='submit'>{{ message }}</el-button>
+        <el-button :type='type' :loading="loading" :disabled='disabled' @click='submit'>{{ message }}</el-button>
+        <router-link :to="{ name: 'signin' }">toggle</router-link>
     </div>
 </template>
 
@@ -19,8 +20,13 @@ export default {
             usr: '',
             pwd: '',
             type: 'primary',
+            message: '注册',
             loading: false,
-            message: '提交',
+        }
+    },
+    computed: {
+        disabled() {
+            return !this.usr.length||!this.pwd.length
         }
     },
     methods: {
@@ -31,20 +37,23 @@ export default {
                 pwd: this.pwd,
             })
             if (res.data.status === 404) {
-                this.type = 'danger'
-                this.loading = false
-                this.message = '提交失败'
+                //假装加载很久
+                setTimeout(() => {
+                    this.type = 'danger'
+                    this.loading = false
+                    this.message = res.data.message
+                }, 1000)
+            }
+            else {
+                this.$message('即将跳转登陆页')
+                setTimeout(() => {
+                    this.type = 'success'
+                    this.loading = false
+                    this.message = res.data.message
+                    this.$router.push({path: '/signin'})
+                }, 1000)
             }
         },
-
-        submitTest() {
-            this.loading = true
-            setTimeout(() => {
-                this.type = 'success'
-                this.loading = false
-                this.message = '提交失败'
-            }, 2000)
-        }
     }
 
 }

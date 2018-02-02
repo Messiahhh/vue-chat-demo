@@ -20,5 +20,24 @@ npm run build
 npm run build --report
 ```
 
-技术栈 vue + vue-router + axios + koa + socket.io  
-开发中...
+Mysql Setup
+-----------
+
+```javascript
+//cd ./mysql
+module.exports = {
+    host     : 'localhost',
+    user     : 'root',
+    password : 'S0budongnidexin',
+    database : 'node'
+}
+```
+
+技术栈
+-----------
+
+前端:
+Webpack + Vue + Vue-router + Axios + Element-UI + Socket.io  
+
+后端:
+Koa以及相关中间件

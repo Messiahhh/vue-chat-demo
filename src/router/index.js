@@ -9,14 +9,17 @@ export default new Router({
     // mode: 'history',
     routes: [
         {
+            name: 'index',
             path: '/',
             component: index,
         },
         {
+            name: 'signup',
             path: '/signup',
             component: signup,
         },
         {
+            name: 'signin',
             path: '/signin',
             component: signin,
         },

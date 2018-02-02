@@ -11,25 +11,51 @@ const logger = require('koa-logger')
 const mysql = require('mysql')
 const Promise = require('bluebird')
 const koaBody = require('koa-body')
-
+let conn = mysql.createConnection(require('./mysql'))
 conn = Promise.promisifyAll(conn)
+conn.connect()
 
 let io = require('socket.io')(server)
 
 app.use(logger())
 app.use(static(path.join(__dirname, 'dist/')))
 app.use(koaBody())
-
 router
     .get('/', async (ctx, next) => {
         await send(ctx, './dist/index.html')
     })
     .post('/signup', async (ctx, next) => {
-        // ctx.set('Access-Control-Allow-Origin', '*')
-        console.log(ctx.request.body)
-        ctx.body = {
-            status: 200,
-            message: 'ok',
+        let {usr, pwd} = ctx.request.body
+        let data = await conn.queryAsync(`SELECT * FROM test WHERE usr = '${usr}'`)
+        if (data[0]) {
+            ctx.body = {
+                status: 404,
+                message: '用户名已存在',
+            }
+        }
+        else {
+            await conn.query(`INSERT INTO test VALUES (?, ?, ?)`, [null, usr, pwd])
+            ctx.body = {
+                status: 200,
+                message: '注册成功',
+            }
+        }
+    })
+    .post('/signin', async (ctx, next) => {
+        let {usr, pwd} = ctx.request.body
+        let data = await conn.queryAsync(`SELECT * FROM test WHERE usr = '${usr}' AND pwd = '${pwd}'`)
+        console.log(data)
+        if (data[0]) {
+            ctx.body = {
+                status: 200,
+                message: '登陆成功',
+            }
+        }
+        else {
+            ctx.body = {
+                status: 404,
+                message: '登陆失败',
+            }
         }
     })
 
