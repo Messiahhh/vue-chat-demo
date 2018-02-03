@@ -14,16 +14,12 @@ const koaBody = require('koa-body')
 let conn = mysql.createConnection(require('./mysql'))
 conn = Promise.promisifyAll(conn)
 conn.connect()
-
 let io = require('socket.io')(server)
 
 app.use(logger())
 app.use(static(path.join(__dirname, 'dist/')))
 app.use(koaBody())
 router
-    .get('/', async (ctx, next) => {
-        await send(ctx, './dist/index.html')
-    })
     .post('/signup', async (ctx, next) => {
         let {usr, pwd} = ctx.request.body
         let data = await conn.queryAsync(`SELECT * FROM test WHERE usr = '${usr}'`)
@@ -44,8 +40,10 @@ router
     .post('/signin', async (ctx, next) => {
         let {usr, pwd} = ctx.request.body
         let data = await conn.queryAsync(`SELECT * FROM test WHERE usr = '${usr}' AND pwd = '${pwd}'`)
-        console.log(data)
         if (data[0]) {
+            ctx.cookies.set('usr', usr, {
+                httpOnly: false,
+            })
             ctx.body = {
                 status: 200,
                 message: '登陆成功',
@@ -62,7 +60,9 @@ router
 app
     .use(router.routes())
     .use(router.allowedMethods())
-server.listen(3000)
+server.listen(3000, () => {
+    console.log('Running at 3000 port')
+})
 
 
 //在线人数

@@ -1,8 +1,10 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import index from '@/components/router/index'
-import signin from '@/components/router/signin'
-import signup from '@/components/router/signup'
+import index from '@/components/index'
+import signin from '@/components/signin'
+import signup from '@/components/signup'
+import profile from '@/components/sub/profile'
+import group from '@/components/sub/group'
 Vue.use(Router)
 
 export default new Router({
@@ -12,6 +14,16 @@ export default new Router({
             name: 'index',
             path: '/',
             component: index,
+            children: [
+                {
+                    path: 'profile',
+                    component: profile,
+                },
+                {
+                    path: 'group',
+                    component: group,
+                }
+            ]
         },
         {
             name: 'signup',

@@ -42,7 +42,7 @@ export default {
                     this.type = 'success'
                     this.loading = false
                     this.message = res.data.message
-                    this.$router.push({path: '/', query: {name: this.usr}})
+                    this.$router.push({path: '/'})
                 }, 1000)
             }
             else {

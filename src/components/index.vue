@@ -76,10 +76,7 @@ themeColor = #409EFF
 
 <template lang="html">
     <div class="container">
-        <div class="slideBar">
-            <h4>在线人数 {{count}}</h4>
-            <p v-for='user in userList'>{{user}}</p>
-        </div>
+        <router-view></router-view>
         <div class="main">
             <div class="chatField">
                 <div v-for="item in items" class='profile'>
@@ -126,18 +123,24 @@ themeColor = #409EFF
 
 <script>
 export default {
-    data: function () {
+    data() {
         return {
-            name: this.$route.query.name,
-            userList: [],
             comment: '',
             items: [],
-            socket: {},
         }
     },
     computed: {
         count() {
             return this.userList.length
+        },
+        name() {
+            return  this.$store.state.name
+        },
+        userList() {
+            return this.$store.state.userList
+        },
+        socket() {
+            return this.$store.state.socket
         },
     },
     methods: {
@@ -154,30 +157,28 @@ export default {
             this.comment = ''
         },
     },
+    beforeRouteEnter(to, from, next) {
+        let cookie = document.cookie.split('=')
+        if (cookie[0] === 'usr') {
+            next()
+        }
+        else {
+            next('/signin')
+        }
+    },
     created() {
-        this.socket = io()
+        this.$store.commit('initSocket')
+        this.$store.commit('changeName', this.$cookie.get('usr'))
         this.socket.emit('login', {name: this.name})
-
         this.socket.on('login', data => {
-            let arr = []
-            data.userList.forEach((item, index) => {
-                arr.push(item.name)
-            })
-            this.userList = arr
+            this.$store.commit('updateUserList', data)
             this.notify(`${data.user.name} join room`)
         })
-
         this.socket.on('logout', data => {
-            this.userList.forEach((item, index) => {
-                if (item === data.name) {
-                    this.userList.splice(index, 1)
-                }
-            })
-
+            this.$store.commit('deleteUser', data)
             this.notify(`${data.name} leave room`)
         })
         this.socket.on('chat', data => {
-            console.log(data)
             this.items.push({
                 name: data.name,
                 comment: data.comment,
