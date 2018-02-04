@@ -3,14 +3,7 @@ themeColor = #409EFF
 .container
     display flex
     height 100vh
-    .slideBar
-        flex-basis 260px
-        background themeColor
-        h4
-            text-align center
-            color #fff
-        p
-            text-align center
+    // insert profile.vue
     .main
         flex 1
         display flex
@@ -78,6 +71,8 @@ themeColor = #409EFF
     <div class="container">
         <router-view></router-view>
         <div class="main">
+            <router-link :to="{ name: 'group'}" v-if="$route.path === '/profile'">to group</router-link>
+            <router-link :to="{ name: 'profile'}" v-if="$route.path === '/'">to profile</router-link>
             <div class="chatField">
                 <div v-for="item in items" class='profile'>
                     <template v-if="item.name === name">

@@ -18,8 +18,15 @@ let io = require('socket.io')(server)
 
 app.use(logger())
 app.use(static(path.join(__dirname, 'dist/')))
-app.use(koaBody())
+app.use(koaBody({multipart: true}))
 router
+    .post('/upload', async (ctx, next) => {
+        let data = ctx.request.body.files.file
+        console.log(data)
+        ctx.body = {
+            status: 200,
+        }
+    })
     .post('/signup', async (ctx, next) => {
         let {usr, pwd} = ctx.request.body
         let data = await conn.queryAsync(`SELECT * FROM test WHERE usr = '${usr}'`)

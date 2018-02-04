@@ -1,3 +1,15 @@
+<style lang="stylus">
+@import '../../assets/css/global.styl'
+.slideBar
+    flex-basis 280px
+    background themeColor
+    h4
+        text-align center
+        color #fff
+    p
+        text-align center
+</style>
+
 <template lang="html">
     <div class="slideBar">
         <h4>在线人数 {{count}}</h4>
@@ -22,6 +34,3 @@ export default {
     }
 }
 </script>
-
-<style lang="css">
-</style>

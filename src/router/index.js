@@ -16,11 +16,13 @@ export default new Router({
             component: index,
             children: [
                 {
+                    name: 'profile',
                     path: 'profile',
                     component: profile,
                 },
                 {
-                    path: 'group',
+                    name: 'group',
+                    path: '',
                     component: group,
                 }
             ]
