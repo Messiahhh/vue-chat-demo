@@ -1,4 +1,5 @@
 ./mysql/index.js
+./public/*
 .DS_Store
 node_modules/
 /dist/

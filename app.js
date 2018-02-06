@@ -11,18 +11,28 @@ const logger = require('koa-logger')
 const mysql = require('mysql')
 const Promise = require('bluebird')
 const koaBody = require('koa-body')
+const fs = require('fs-extra')
+const uniqueString = require('unique-string')
+
 let conn = mysql.createConnection(require('./mysql'))
 conn = Promise.promisifyAll(conn)
 conn.connect()
+
 let io = require('socket.io')(server)
 
 app.use(logger())
 app.use(static(path.join(__dirname, 'dist/')))
+app.use(static(path.join(__dirname, 'public/')))
 app.use(koaBody({multipart: true}))
 router
     .post('/upload', async (ctx, next) => {
         let data = ctx.request.body.files.file
-        console.log(data)
+        let usr = ctx.request.body.fields.usr
+        let filename = `${uniqueString()}.jpg`
+        const reader = fs.createReadStream(data.path)
+        const stream = fs.createWriteStream(`./public/${filename}`)
+        reader.pipe(stream)
+        await conn.queryAsync(`UPDATE test SET imgUrl='${filename}' WHERE usr='${usr}'`)
         ctx.body = {
             status: 200,
         }
@@ -37,7 +47,7 @@ router
             }
         }
         else {
-            await conn.query(`INSERT INTO test VALUES (?, ?, ?)`, [null, usr, pwd])
+            await conn.query(`INSERT INTO test VALUES (?, ?, ?, default)`, [null, usr, pwd])
             ctx.body = {
                 status: 200,
                 message: '注册成功',
@@ -49,6 +59,9 @@ router
         let data = await conn.queryAsync(`SELECT * FROM test WHERE usr = '${usr}' AND pwd = '${pwd}'`)
         if (data[0]) {
             ctx.cookies.set('usr', usr, {
+                httpOnly: false,
+            })
+            ctx.cookies.set('imgUrl', data[0].imgUrl, {
                 httpOnly: false,
             })
             ctx.body = {
@@ -78,7 +91,8 @@ io.on('connection', function(socket) {
     socket.on('login', (data) => {
         let user = {
             id: socket.id,
-            name: data.name,
+            usr: data.usr,
+            imgUrl: data.imgUrl,
         }
         userList.push(user)
         io.emit('login', {user, userList})

@@ -13,7 +13,7 @@
 <template lang="html">
     <div class="slideBar">
         <h4>在线人数 {{count}}</h4>
-        <p v-for='user in userList'>{{user}}</p>
+        <p v-for='user in userList'>{{user.usr}}</p>
     </div>
 </template>
 

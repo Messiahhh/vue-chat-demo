@@ -11,7 +11,6 @@
         border-radius 50%
         margin 25px auto
         border 5px solid #fff
-        background-image url('https://pbs.twimg.com/profile_images/955132257576009728/aM_BKWRX_400x400.jpg')
         background-repeat no-repeat
         background-size cover
         .changeImage
@@ -53,9 +52,9 @@
 
 <template lang="html">
     <div class="slideBar">
-        <div class="image">
+        <div class="image" :style="{backgroundImage: 'url(' + imgUrl + ')'}">
             <div class="changeImage" v-if='isEditing'>
-                <input type="file" class='upload'>
+                <input type="file" class='upload' @change="changeFile">
                 <i class='el-icon-picture'></i>
             </div>
         </div>
@@ -80,11 +79,49 @@ export default {
     data() {
         return {
             isEditing: false,
+            previewUrl: '',
         }
     },
+
+    computed: {
+        user() {
+            return this.$store.state.user
+        },
+
+        imgUrl() {
+            if (this.previewUrl === '') {
+                return this.user.imgUrl
+            }
+            else {
+                return this.previewUrl
+            }
+        }
+
+        // imgUrl: {
+        //     get: function () {
+        //         return this.user.imgUrl
+        //     },
+        //
+        //     set: function () {
+        //
+        //     }
+        // }
+
+
+    },
+
     methods: {
         changeState() {
             this.isEditing = !this.isEditing
+        },
+
+        changeFile(e) {
+            let file = e.target.files[0]
+            let reader = new FileReader()
+            reader.addEventListener('load', () => {
+                this.previewUrl = reader.result
+            })
+            reader.readAsDataURL(file)
         },
 
         async uploadImage() {
@@ -92,13 +129,15 @@ export default {
             let file = input.files[0]
             let fd = new FormData()
             fd.append('file', file)
+            fd.append('usr', this.user.usr)
             let res = await axios({
                 url: '/upload',
                 method: 'post',
-                data: fd
+                data: fd,
             })
-            console.log(res)
-        }
+        },
+
+
     }
 }
 </script>

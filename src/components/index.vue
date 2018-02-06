@@ -32,8 +32,9 @@ themeColor = #409EFF
             margin 10px auto
             width 40px
             height 40px
+            background-size cover
+            background-repeat no-repeat
             /* border-radius 20px */
-            background pink
     .message
         flex 1
         div
@@ -75,25 +76,25 @@ themeColor = #409EFF
             <router-link :to="{ name: 'profile'}" v-if="$route.path === '/'">to profile</router-link>
             <div class="chatField">
                 <div v-for="item in items" class='profile'>
-                    <template v-if="item.name === name">
+                    <template v-if="item.usr === user.usr">
                         <div class="image" style='order: 1'>
-                            <div class="img">
+                            <div class="img" :style="{backgroundImage: `url(${item.imgUrl})`}">
 
                             </div>
                         </div>
                         <div class="message messageR" style='order: 0;text-align: right'>
-                            <div>{{item.name}} :</div>
+                            <div>{{item.usr}} :</div>
                             <span >{{item.comment}}</span>
                         </div>
                     </template>
                     <template v-else>
                         <div class="image">
-                            <div class="img">
+                            <div class="img" :style="{backgroundImage: `url(${item.imgUrl})`}">
 
                             </div>
                         </div>
                         <div class="message" >
-                            <div>{{item.name}} :</div>
+                            <div>{{item.usr}} :</div>
                             <span >{{item.comment}}</span>
                         </div>
                     </template>
@@ -128,8 +129,8 @@ export default {
         count() {
             return this.userList.length
         },
-        name() {
-            return  this.$store.state.name
+        user() {
+            return  this.$store.state.user
         },
         userList() {
             return this.$store.state.userList
@@ -163,19 +164,23 @@ export default {
     },
     created() {
         this.$store.commit('initSocket')
-        this.$store.commit('changeName', this.$cookie.get('usr'))
-        this.socket.emit('login', {name: this.name})
+        this.$store.commit('initState', {
+            usr: this.$cookie.get('usr'),
+            imgUrl: this.$cookie.get('imgUrl'),
+        })
+        this.socket.emit('login', this.$store.state.user)
         this.socket.on('login', data => {
             this.$store.commit('updateUserList', data)
-            this.notify(`${data.user.name} join room`)
+            this.notify(`${data.user.usr} join room`)
         })
         this.socket.on('logout', data => {
             this.$store.commit('deleteUser', data)
-            this.notify(`${data.name} leave room`)
+            this.notify(`${data.usr} leave room`)
         })
         this.socket.on('chat', data => {
             this.items.push({
-                name: data.name,
+                usr: data.usr,
+                imgUrl: data.imgUrl,
                 comment: data.comment,
             })
             // this.notify(`${data.name} says ${data.comment}`)

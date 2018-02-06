@@ -23,8 +23,9 @@ npm run build --report
 Mysql Setup
 -----------
 
+./mysql/index.js
+
 ```javascript
-//cd ./mysql
 module.exports = {
     host,
     user,
@@ -33,8 +34,13 @@ module.exports = {
 }
 ```
 
+public文件夹放置头像
+
+
 技术栈
 -----------
+
+
 
 前端:
 Webpack + Vue + Vue-router + Axios + Element-UI + Socket.io  

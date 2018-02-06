@@ -16,27 +16,35 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
     state: {
-        name: '',
+        user: {
+            usr: '',
+            imgUrl: '',
+        },
         userList: [],
         socket: {},
     },
     mutations: {
-        changeName(state, val) {
-            state.name = val
-        },
         initSocket(state) {
             state.socket = io()
         },
+
+        initState(state, obj) {
+            state.user = obj
+        },
+
         updateUserList(state, data) {
             let arr = []
             data.userList.forEach((item, index) => {
-                arr.push(item.name)
+                arr.push({
+                    usr: item.usr,
+                    imgUrl: item.imgUrl,
+                })
             })
             state.userList = arr
         },
         deleteUser(state, data) {
             state.userList.forEach((item, index) => {
-                if (item === data.name) {
+                if (item.usr === data.usr) {
                     state.userList.splice(index, 1)
                 }
             })
