@@ -17,10 +17,11 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
     state: {
         user: {
+            id: '',
             usr: '',
             imgUrl: '',
         },
-        userList: [],
+        userList: {},
         socket: {},
     },
     mutations: {
@@ -33,21 +34,11 @@ const store = new Vuex.Store({
         },
 
         updateUserList(state, data) {
-            let arr = []
-            data.userList.forEach((item, index) => {
-                arr.push({
-                    usr: item.usr,
-                    imgUrl: item.imgUrl,
-                })
-            })
-            state.userList = arr
+            state.userList = data.userList
         },
+
         deleteUser(state, data) {
-            state.userList.forEach((item, index) => {
-                if (item.usr === data.usr) {
-                    state.userList.splice(index, 1)
-                }
-            })
+            delete state.userList[data]
         },
     }
 })

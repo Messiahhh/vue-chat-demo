@@ -35,6 +35,7 @@ router
         await conn.queryAsync(`UPDATE test SET imgUrl='${filename}' WHERE usr='${usr}'`)
         ctx.body = {
             status: 200,
+            imgUrl: filename,
         }
     })
     .post('/signup', async (ctx, next) => {
@@ -86,35 +87,29 @@ server.listen(3000, () => {
 
 
 //在线人数
-let userList = []
+let userList = {}
 io.on('connection', function(socket) {
     socket.on('login', (data) => {
-        let user = {
-            id: socket.id,
-            usr: data.usr,
-            imgUrl: data.imgUrl,
-        }
-        userList.push(user)
-        io.emit('login', {user, userList})
+        let user = data
+        Object.assign(userList, {
+            [user.id]: user
+        })
+        io.emit('login', {id: user.id, userList})
     })
 
     socket.on('disconnect', () => {
         let id = socket.id
-        let user
-        userList.forEach((item, index) => {
-            if (id === item.id) {
-                user = userList.splice(index, 1)
-            }
-        })
-        // console.log(user);
-        socket.broadcast.emit('logout', user[0])
+        delete userList[id]
+        socket.broadcast.emit('logout', id)
     })
 
     socket.on('chat', data => {
-        userList.forEach((item, index) => {
-            if (data.id === item.id) {
-                io.emit('chat', Object.assign(item, data))
-            }
-        })
+        console.log( Object.assign(data, userList[data.id]))
+        io.emit('chat', Object.assign(data, userList[data.id]))
+        // userList.forEach((item, index) => {
+        //     if (data.id === item.id) {
+        //         io.emit('chat', Object.assign(item, data))
+        //     }
+        // })
     })
 });

@@ -97,17 +97,6 @@ export default {
             }
         }
 
-        // imgUrl: {
-        //     get: function () {
-        //         return this.user.imgUrl
-        //     },
-        //
-        //     set: function () {
-        //
-        //     }
-        // }
-
-
     },
 
     methods: {
@@ -135,6 +124,10 @@ export default {
                 method: 'post',
                 data: fd,
             })
+            if (res.data.status === 200) {
+                this.$cookie.set('imgUrl', res.data.imgUrl)
+                location.reload()
+            }
         },
 
 

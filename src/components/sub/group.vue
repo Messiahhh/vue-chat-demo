@@ -13,7 +13,7 @@
 <template lang="html">
     <div class="slideBar">
         <h4>在线人数 {{count}}</h4>
-        <p v-for='user in userList'>{{user.usr}}</p>
+        <p v-for='item,index in userList'>{{item.usr}}</p>
     </div>
 </template>
 
@@ -29,7 +29,7 @@ export default {
             return this.$store.state.userList
         },
         count() {
-            return this.userList.length
+            return Object.keys(this.userList).length
         }
     }
 }

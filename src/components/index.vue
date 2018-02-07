@@ -130,7 +130,7 @@ export default {
             return this.userList.length
         },
         user() {
-            return  this.$store.state.user
+            return this.$store.state.user
         },
         userList() {
             return this.$store.state.userList
@@ -152,6 +152,7 @@ export default {
             })
             this.comment = ''
         },
+
     },
     beforeRouteEnter(to, from, next) {
         let cookie = document.cookie.split('=')
@@ -164,27 +165,27 @@ export default {
     },
     created() {
         this.$store.commit('initSocket')
-        this.$store.commit('initState', {
-            usr: this.$cookie.get('usr'),
-            imgUrl: this.$cookie.get('imgUrl'),
-        })
-        this.socket.emit('login', this.$store.state.user)
-        this.socket.on('login', data => {
-            this.$store.commit('updateUserList', data)
-            this.notify(`${data.user.usr} join room`)
-        })
-        this.socket.on('logout', data => {
-            this.$store.commit('deleteUser', data)
-            this.notify(`${data.usr} leave room`)
-        })
-        this.socket.on('chat', data => {
-            this.items.push({
-                usr: data.usr,
-                imgUrl: data.imgUrl,
-                comment: data.comment,
+        this.socket.on('connect', () => {
+            this.$store.commit('initState', {
+                id: this.socket.id,
+                usr: this.$cookie.get('usr'),
+                imgUrl: this.$cookie.get('imgUrl'),
             })
-            // this.notify(`${data.name} says ${data.comment}`)
+
+            this.socket.emit('login', this.$store.state.user)
+            this.socket.on('login', data => {
+                this.$store.commit('updateUserList', data)
+                this.notify(`${this.userList[data.id].usr} join room`)
+            })
+            this.socket.on('logout', data => {
+                this.notify(`${this.userList[data].usr} leave room`)
+                this.$store.commit('deleteUser', data)
+            })
+            this.socket.on('chat', data => {
+                this.items.push(data)
+            })
         })
+
 
     }
 }
