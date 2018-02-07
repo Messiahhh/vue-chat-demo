@@ -25,6 +25,15 @@ app.use(static(path.join(__dirname, 'dist/')))
 app.use(static(path.join(__dirname, 'public/')))
 app.use(koaBody({multipart: true}))
 router
+    .post('/getInfo', async (ctx, next) => {
+        let usr = ctx.request.body.usr
+        console.log(usr)
+        let data = await conn.queryAsync(`SELECT gender,birth,city,resume FROM test WHERE usr = '${usr}'`)
+        console.log(data)
+        if (data[0]) {
+            ctx.body = data[0]
+        }
+    })
     .post('/upload', async (ctx, next) => {
         let data = ctx.request.body.files.file
         let usr = ctx.request.body.fields.usr
@@ -48,7 +57,7 @@ router
             }
         }
         else {
-            await conn.query(`INSERT INTO test VALUES (?, ?, ?, default)`, [null, usr, pwd])
+            await conn.query(`INSERT INTO test VALUES (?, ?, ?, default, default, default, default, default)`, [null, usr, pwd])
             ctx.body = {
                 status: 200,
                 message: '注册成功',

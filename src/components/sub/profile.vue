@@ -40,13 +40,15 @@
                 display block
     .infoPage
         width 220px
-        height 400px
-        background pink
         margin 10px auto
+        display flex
+        flex-direction column
+        .info
+            flex-basis 50px
+            line-height 50px
+            padding-left 15px
     .editPage
         width 220px
-        height 400px
-        background red
         margin 10px auto
 </style>
 
@@ -59,16 +61,55 @@
             </div>
         </div>
         <template v-if='!isEditing'>
-            <div class="infoPage">
-
+            <div class="infoPage" v-loading="isLoading">
+                <div class="info">
+                    昵称&#160;&#160;&#160;{{info.usr}}
+                </div>
+                <div class="info">
+                    性别&#160;&#160;&#160;{{info.gender}}
+                </div>
+                <div class="info">
+                    生日&#160;&#160;&#160;{{info.birth}}
+                </div>
+                <div class="info">
+                    城市&#160;&#160;&#160;{{info.city}}
+                </div>
+                <div class="info">
+                    个性签名&#160;&#160;&#160;{{info.resume}}
+                </div>
             </div>
             <el-button type='primary' @click='changeState' style="margin: 0 auto;display: block;">修改个人资料</el-button>
         </template>
         <template v-else>
             <div class="editPage"  v-if='isEditing'>
-
+                <el-form>
+                    <el-form-item label="用户名">
+                        <el-input :placeholder="user.usr" v-model="editingInfo.usr"></el-input>
+                    </el-form-item>
+                    <el-form-item label="性别">
+                        <el-radio v-model="editingInfo.gender" label="男">男生</el-radio>
+                        <el-radio v-model="editingInfo.gender" label="女">女生</el-radio>
+                    </el-form-item>
+                    <el-form-item label="生日">
+                        <el-date-picker
+                          v-model="editingInfo.birth"
+                          type="date"
+                          value-format="yyyy-MM-dd"
+                          placeholder="选择日期">
+                        </el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="城市">
+                        <el-select v-model="editingInfo.city">
+                            <el-option v-for="city in cities" :value="city" :key="city"></el-option>
+                        </el-select>
+                    </el-form-item>
+                    <el-form-item label="个性签名">
+                        <el-input type='textarea' :autosize="{minRows: 2}" resize="none" placeholder="这个人很懒，什么也没说" v-model="editingInfo.resume"></el-input>
+                    </el-form-item>
+                    <el-button type='primary' @click='uploadImage'>完成</el-button>
+                    <el-button type='primary' @click='changeState' plain>撤销</el-button>
+                </el-form>
             </div>
-            <el-button type='primary' @click='uploadImage' style="margin: 0 auto;display: block;" plain>完成</el-button>
         </template>
     </div>
 </template>
@@ -79,7 +120,46 @@ export default {
     data() {
         return {
             isEditing: false,
+            isLoading: false,
             previewUrl: '',
+            info: {},
+            editingInfo: {},
+            cities:
+                [
+                    '北京市',
+                    '天津市',
+                    '河北省',
+                    '山西省',
+                    '内蒙古自治区',
+                    '辽宁省',
+                    '吉林省',
+                    '黑龙江省',
+                    '上海市',
+                    '江苏省',
+                    '浙江省',
+                    '安徽省',
+                    '福建省',
+                    '江西省',
+                    '山东省',
+                    '河南省',
+                    '湖北省',
+                    '湖南省',
+                    '广东省',
+                    '广西壮族自治区',
+                    '海南省',
+                    '重庆市',
+                    '四川省',
+                    '贵州省',
+                    '云南省',
+                    '西藏自治区',
+                    '陕西省',
+                    '甘肃省',
+                    '青海省',
+                    '宁夏回族自治区',
+                    '新疆维吾尔自治区',
+                ]
+
+
         }
     },
 
@@ -131,6 +211,21 @@ export default {
         },
 
 
+    },
+
+    async created() {
+        let usr = this.$cookie.get('usr')
+        this.isLoading = true
+        let res = await axios({
+            method: 'post',
+            url: 'getInfo',
+            data: {
+                usr
+            }
+        })
+        this.info = Object.assign({ usr }, {...res.data})
+        this.editingInfo = Object.assign({ usr }, {...res.data})
+        this.isLoading = false
     }
 }
 </script>
