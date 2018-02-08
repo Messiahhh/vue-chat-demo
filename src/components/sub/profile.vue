@@ -197,15 +197,29 @@ export default {
             let input = document.querySelector('.upload')
             let file = input.files[0]
             let fd = new FormData()
-            fd.append('file', file)
-            fd.append('usr', this.user.usr)
+            fd.append('oldUsr', this.user.usr)
+            if (file) {
+                fd.append('file', file)
+            }
+            if (this.info.usr !== this.editingInfo.usr)
+                fd.append('newUsr', this.editingInfo.usr)
+            if (this.info.gender !== this.editingInfo.gender)
+                fd.append('gender', this.editingInfo.gender)
+            if (this.info.birth !== this.editingInfo.birth)
+                fd.append('birth', this.editingInfo.birth)
+            if (this.info.city !== this.editingInfo.city)
+                fd.append('city', this.editingInfo.city)
+            if (this.info.resume !== this.editingInfo.resume)
+                fd.append('resume', this.editingInfo.resume)
             let res = await axios({
                 url: '/upload',
                 method: 'post',
                 data: fd,
             })
             if (res.data.status === 200) {
-                this.$cookie.set('imgUrl', res.data.imgUrl)
+                if (res.data.changeImg) {
+                    this.$cookie.set('imgUrl', res.data.imgUrl)
+                }
                 location.reload()
             }
         },

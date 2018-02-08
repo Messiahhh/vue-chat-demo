@@ -27,25 +27,68 @@ app.use(koaBody({multipart: true}))
 router
     .post('/getInfo', async (ctx, next) => {
         let usr = ctx.request.body.usr
-        console.log(usr)
         let data = await conn.queryAsync(`SELECT gender,birth,city,resume FROM test WHERE usr = '${usr}'`)
-        console.log(data)
         if (data[0]) {
             ctx.body = data[0]
         }
     })
     .post('/upload', async (ctx, next) => {
-        let data = ctx.request.body.files.file
-        let usr = ctx.request.body.fields.usr
-        let filename = `${uniqueString()}.jpg`
-        const reader = fs.createReadStream(data.path)
-        const stream = fs.createWriteStream(`./public/${filename}`)
-        reader.pipe(stream)
-        await conn.queryAsync(`UPDATE test SET imgUrl='${filename}' WHERE usr='${usr}'`)
-        ctx.body = {
-            status: 200,
-            imgUrl: filename,
+        let {
+            oldUsr,
+            newUsr,
+            gender,
+            birth,
+            city,
+            resume,
+        } = ctx.request.body.fields
+        let obj = {
+            usr: newUsr,
+            gender,
+            birth,
+            city,
+            resume,
         }
+        console.log(ctx.request.body);
+
+        let file = ctx.request.body.files.file
+        let filename
+        if (file) {
+            filename = `${uniqueString()}.jpg`
+            const reader = fs.createReadStream(file.path)
+            const stream = fs.createWriteStream(`./public/${filename}`)
+            reader.pipe(stream)
+            await conn.queryAsync(`UPDATE test SET imgUrl='${filename}' WHERE usr='${oldUsr}'`)
+        }
+        Object.entries(obj).forEach(async ([key,val], index) => {
+            if (val) {
+                await conn.queryAsync(`UPDATE test SET ${key}='${val}' WHERE usr='${oldUsr}'`);
+            }
+        })
+        // Object.entries(obj).forEach(([key,val], index) => {
+        //     if (key) {
+                // await conn.queryAsync(`UPDATE test SET ${key}='${newUsr}' WHERE usr='${oldUsr}'`)
+        //     }
+        // })
+        // usr='${usr}', imgUrl='${filename}', gender='${gender}', birth='${birth}', city='${city}' resume='${resume}'
+        // if (!newUsr) {
+        // }
+        // if (!gender) {
+        //
+        // }
+        if (file) {
+            ctx.body = {
+                status: 200,
+                changeImg: true,
+                imgUrl: filename,
+            }
+        }
+        else {
+            ctx.body = {
+                status: 200,
+                changeImg: false,
+            }
+        }
+
     })
     .post('/signup', async (ctx, next) => {
         let {usr, pwd} = ctx.request.body
