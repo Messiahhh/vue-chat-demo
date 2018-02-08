@@ -1,4 +1,4 @@
-<style lang="stylus">
+<style lang="stylus" scoped>
 @import '../../assets/css/global.styl'
 .slideBar
     flex-basis 280px
@@ -47,6 +47,16 @@
             flex-basis 50px
             line-height 50px
             padding-left 15px
+
+        .resume
+            flex-basis 120px
+            padding-left 15px
+            div
+                height 50px
+                line-height 50px
+            span
+                font-size 14px
+                color #789
     .editPage
         width 220px
         margin 10px auto
@@ -74,17 +84,20 @@
                 <div class="info">
                     城市&#160;&#160;&#160;{{info.city}}
                 </div>
-                <div class="info">
-                    个性签名&#160;&#160;&#160;{{info.resume}}
+                <div class="resume">
+                    <div class="">
+                        个性签名
+                    </div>
+                    <span>{{info.resume}}</span>
                 </div>
             </div>
-            <el-button type='primary' @click='changeState' style="margin: 0 auto;display: block;">修改个人资料</el-button>
+            <el-button v-if="usr === user.usr" type='primary' @click='changeState' style="margin: 0 auto;display: block;">修改个人资料</el-button>
         </template>
         <template v-else>
-            <div class="editPage"  v-if='isEditing'>
+            <div class="editPage">
                 <el-form>
                     <el-form-item label="用户名">
-                        <el-input :placeholder="user.usr" v-model="editingInfo.usr"></el-input>
+                        <el-input v-model="editingInfo.usr"></el-input>
                     </el-form-item>
                     <el-form-item label="性别">
                         <el-radio v-model="editingInfo.gender" label="男">男生</el-radio>
@@ -107,7 +120,7 @@
                         <el-input type='textarea' :autosize="{minRows: 2}" resize="none" placeholder="这个人很懒，什么也没说" v-model="editingInfo.resume"></el-input>
                     </el-form-item>
                     <el-button type='primary' @click='uploadImage'>完成</el-button>
-                    <el-button type='primary' @click='changeState' plain>撤销</el-button>
+                    <el-button type='primary' @click='backState' plain>撤销</el-button>
                 </el-form>
             </div>
         </template>
@@ -117,6 +130,7 @@
 <script>
 import axios from 'axios'
 export default {
+    props: ['usr'],
     data() {
         return {
             isEditing: false,
@@ -169,8 +183,8 @@ export default {
         },
 
         imgUrl() {
-            if (this.previewUrl === '') {
-                return this.user.imgUrl
+            if (this.previewUrl === '' && this.info.imgUrl) {
+                return this.info.imgUrl
             }
             else {
                 return this.previewUrl
@@ -182,6 +196,11 @@ export default {
     methods: {
         changeState() {
             this.isEditing = !this.isEditing
+        },
+
+        backState() {
+            this.changeState()
+            this.previewUrl = ''
         },
 
         changeFile(e) {
@@ -197,7 +216,7 @@ export default {
             let input = document.querySelector('.upload')
             let file = input.files[0]
             let fd = new FormData()
-            fd.append('oldUsr', this.user.usr)
+            fd.append('oldUsr', this.info.usr)
             if (file) {
                 fd.append('file', file)
             }
@@ -224,22 +243,30 @@ export default {
             }
         },
 
+        async getInfo () {
+            let usr = this.usr
+            this.isLoading = true
+            let res = await axios({
+                method: 'post',
+                url: '/getInfo',
+                data: {
+                    usr
+                }
+            })
+            this.info = Object.assign({ usr }, {...res.data})
+            this.editingInfo = Object.assign({ usr }, {...res.data})
+            this.isLoading = false
+        }
 
     },
 
+    watch: {
+        '$route' (to, from) {
+            this.getInfo()
+        }
+    },
     async created() {
-        let usr = this.$cookie.get('usr')
-        this.isLoading = true
-        let res = await axios({
-            method: 'post',
-            url: 'getInfo',
-            data: {
-                usr
-            }
-        })
-        this.info = Object.assign({ usr }, {...res.data})
-        this.editingInfo = Object.assign({ usr }, {...res.data})
-        this.isLoading = false
+        this.getInfo()
     }
 }
 </script>

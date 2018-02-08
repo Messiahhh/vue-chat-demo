@@ -27,7 +27,7 @@ app.use(koaBody({multipart: true}))
 router
     .post('/getInfo', async (ctx, next) => {
         let usr = ctx.request.body.usr
-        let data = await conn.queryAsync(`SELECT gender,birth,city,resume FROM test WHERE usr = '${usr}'`)
+        let data = await conn.queryAsync(`SELECT imgUrl,gender,birth,city,resume FROM test WHERE usr = '${usr}'`)
         if (data[0]) {
             ctx.body = data[0]
         }
@@ -119,6 +119,7 @@ router
             })
             ctx.body = {
                 status: 200,
+                usr,
                 message: '登陆成功',
             }
         }

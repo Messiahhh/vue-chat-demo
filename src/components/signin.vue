@@ -42,7 +42,7 @@ export default {
                     this.type = 'success'
                     this.loading = false
                     this.message = res.data.message
-                    this.$router.push({path: '/'})
+                    this.$router.push({name: 'profile', params: {usr: res.data.usr}})
                 }, 1000)
             }
             else {

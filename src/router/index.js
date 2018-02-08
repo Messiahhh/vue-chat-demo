@@ -11,14 +11,14 @@ export default new Router({
     // mode: 'history',
     routes: [
         {
-            name: 'index',
             path: '/',
             component: index,
             children: [
                 {
                     name: 'profile',
-                    path: 'profile',
+                    path: '/profile/:usr',
                     component: profile,
+                    props: true,
                 },
                 {
                     name: 'group',

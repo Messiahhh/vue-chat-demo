@@ -72,8 +72,8 @@ themeColor = #409EFF
     <div class="container">
         <router-view></router-view>
         <div class="main">
-            <router-link :to="{ name: 'group'}" v-if="$route.path === '/profile'">to group</router-link>
-            <router-link :to="{ name: 'profile'}" v-if="$route.path === '/'">to profile</router-link>
+            <router-link :to="{ name: 'group'}" v-if="$route.name === 'profile'">to group</router-link>
+            <router-link :to="{ name: 'profile', params: {usr: user.usr}}" v-if="$route.name === 'group'">to profile</router-link>
             <div class="chatField">
                 <div v-for="item in items" class='profile'>
                     <template v-if="item.usr === user.usr">
@@ -127,7 +127,7 @@ export default {
     },
     computed: {
         count() {
-            return this.userList.length
+            return Object.key(this.userList).length
         },
         user() {
             return this.$store.state.user
@@ -155,8 +155,8 @@ export default {
 
     },
     beforeRouteEnter(to, from, next) {
-        let cookie = document.cookie.split('=')
-        if (cookie[0] === 'usr') {
+        let token = document.cookie.split(';')[0].split('=')[0]
+        if (token === 'usr') {
             next()
         }
         else {
