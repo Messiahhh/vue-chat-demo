@@ -48,8 +48,6 @@ router
             city,
             resume,
         }
-        console.log(ctx.request.body);
-
         let file = ctx.request.body.files.file
         let filename
         if (file) {
@@ -64,17 +62,6 @@ router
                 await conn.queryAsync(`UPDATE test SET ${key}='${val}' WHERE usr='${oldUsr}'`);
             }
         })
-        // Object.entries(obj).forEach(([key,val], index) => {
-        //     if (key) {
-                // await conn.queryAsync(`UPDATE test SET ${key}='${newUsr}' WHERE usr='${oldUsr}'`)
-        //     }
-        // })
-        // usr='${usr}', imgUrl='${filename}', gender='${gender}', birth='${birth}', city='${city}' resume='${resume}'
-        // if (!newUsr) {
-        // }
-        // if (!gender) {
-        //
-        // }
         if (file) {
             ctx.body = {
                 status: 200,
@@ -130,6 +117,10 @@ router
             }
         }
     })
+    .get('/backend', async (ctx, next) => {
+        ctx.body = userList
+
+    })
 
 app
     .use(router.routes())
@@ -149,20 +140,14 @@ io.on('connection', function(socket) {
         })
         io.emit('login', {id: user.id, userList})
     })
-
-    socket.on('disconnect', () => {
+    //Seem that reload page sometimes didn't emit 'disconnect' event
+    socket.on('disconnecting', () => {
         let id = socket.id
         delete userList[id]
         socket.broadcast.emit('logout', id)
     })
 
     socket.on('chat', data => {
-        console.log( Object.assign(data, userList[data.id]))
         io.emit('chat', Object.assign(data, userList[data.id]))
-        // userList.forEach((item, index) => {
-        //     if (data.id === item.id) {
-        //         io.emit('chat', Object.assign(item, data))
-        //     }
-        // })
     })
 });

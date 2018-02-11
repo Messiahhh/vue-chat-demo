@@ -2,6 +2,7 @@
 @import '../../assets/css/global.styl'
 .slideBar
     flex-basis 280px
+    overflow auto
     padding 0 30px
     background greyColor
     border-right 1px solid themeColor
@@ -262,6 +263,7 @@ export default {
 
     watch: {
         '$route' (to, from) {
+            console.log(to, from);
             this.getInfo()
         }
     },

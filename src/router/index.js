@@ -5,6 +5,7 @@ import signin from '@/components/signin'
 import signup from '@/components/signup'
 import profile from '@/components/sub/profile'
 import group from '@/components/sub/group'
+import test from '@/components/test'
 Vue.use(Router)
 
 export default new Router({
@@ -37,6 +38,10 @@ export default new Router({
             path: '/signin',
             component: signin,
         },
+        {
+            'path': '/test',
+            component: test,
+        }
 
     ]
 })

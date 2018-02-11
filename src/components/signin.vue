@@ -36,6 +36,7 @@ export default {
                 usr: this.usr,
                 pwd: this.pwd,
             })
+            //setTimeout 模拟加载效果= =
             if (res.data.status === 200) {
                 this.$message('即将跳转主页')
                 setTimeout(() => {

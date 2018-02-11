@@ -31,6 +31,7 @@ const store = new Vuex.Store({
 
         initState(state, obj) {
             state.user = obj
+
         },
 
         updateUserList(state, data) {
@@ -38,7 +39,9 @@ const store = new Vuex.Store({
         },
 
         deleteUser(state, data) {
-            delete state.userList[data]
+            let obj = {...state.userList}
+            delete obj[data]
+            state.userList = obj
         },
     }
 })

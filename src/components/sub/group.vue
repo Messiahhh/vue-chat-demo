@@ -1,8 +1,10 @@
 <style lang="stylus" scoped>
 @import '../../assets/css/global.styl'
 .slideBar
-    flex-basis 280px
+    height 100%
+    overflow auto
     background greyColor
+    border-right 1px solid themeColor
     .count
         width 280px
         height 50px
@@ -34,6 +36,9 @@
     <div class="slideBar" >
         <div class='count'>在线人数 {{count}}</div>
         <div class="users">
+            <!-- <div class=""> -->
+                <!-- {{userList}} -->
+            <!-- </div> -->
             <div class="user" v-for="key,val in userList">
                 <router-link :to="{ name: 'profile', params: {usr: userList[val].usr} }"  class="img"  :style="{backgroundImage: `url(${userList[val].imgUrl})`}"></router-link>
                 <div class="usr">
