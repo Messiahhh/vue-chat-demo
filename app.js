@@ -13,14 +13,14 @@ const Promise = require('bluebird')
 const koaBody = require('koa-body')
 const fs = require('fs-extra')
 const uniqueString = require('unique-string')
-
-let conn = mysql.createConnection(require('./mysql'))
-conn = Promise.promisifyAll(conn)
+const axios = require('axios')
+let io = require('socket.io')(server)
+let conn = Promise.promisifyAll(mysql.createConnection(require('./mysql')))
 conn.connect()
 
-let io = require('socket.io')(server)
+let APIkey = '322d34bef7294484ac2b7244beda34a4'
 
-app.use(logger())
+// app.use(logger())
 app.use(static(path.join(__dirname, 'dist/')))
 app.use(static(path.join(__dirname, 'public/')))
 app.use(koaBody({multipart: true}))
@@ -131,7 +131,14 @@ server.listen(3000, () => {
 
 
 //在线人数
-let userList = {}
+let robot = {
+    id: '000000',
+    usr: '图灵机器人',
+    imgUrl: 'http://www.tuling123.com/resources/web/v4/img/personalCen/icon40.png',
+}
+let userList = {
+    [robot.id]: robot
+}
 io.on('connection', function(socket) {
     socket.on('login', (data) => {
         let user = data
@@ -142,6 +149,7 @@ io.on('connection', function(socket) {
     })
     //Seem that reload page sometimes didn't emit 'disconnect' event
     socket.on('disconnecting', () => {
+        console.log('disconnect');
         let id = socket.id
         delete userList[id]
         socket.broadcast.emit('logout', id)
@@ -149,5 +157,20 @@ io.on('connection', function(socket) {
 
     socket.on('chat', data => {
         io.emit('chat', Object.assign(data, userList[data.id]))
+    })
+
+    socket.on('ChatToRobot', async data => {
+        let {id, text} = data
+        let {data: res} = await axios.post('http://www.tuling123.com/openapi/api', {
+            key: APIkey,
+            info: text,
+            userid: userList[id],
+        })
+        io.emit('chat', {
+            id: '000000',
+            usr: '图灵机器人',
+            imgUrl: 'http://www.tuling123.com/resources/web/v4/img/personalCen/icon40.png',
+            text: res.text,
+        })
     })
 });

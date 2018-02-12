@@ -14,7 +14,7 @@ export default {
 *::after
     box-sizing border-box
 ::-webkit-scrollbar
-    width 3px
+    width 8px
     height 3px
 ::-webkit-scrollbar-thumb
     background #ccc

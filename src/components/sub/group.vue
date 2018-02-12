@@ -1,6 +1,6 @@
 <style lang="stylus" scoped>
 @import '../../assets/css/global.styl'
-.slideBar
+section
     height 100%
     overflow auto
     background greyColor
@@ -33,12 +33,9 @@
 </style>
 
 <template lang="html">
-    <div class="slideBar" >
+    <section >
         <div class='count'>在线人数 {{count}}</div>
         <div class="users">
-            <!-- <div class=""> -->
-                <!-- {{userList}} -->
-            <!-- </div> -->
             <div class="user" v-for="key,val in userList">
                 <router-link :to="{ name: 'profile', params: {usr: userList[val].usr} }"  class="img"  :style="{backgroundImage: `url(${userList[val].imgUrl})`}"></router-link>
                 <div class="usr">
@@ -46,7 +43,7 @@
                 </div>
             </div>
             </div>
-        </div>
+        </section>
     </div>
 </template>
 
@@ -54,7 +51,6 @@
 export default {
     data() {
         return {
-
         }
     },
     computed: {

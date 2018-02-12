@@ -18,9 +18,10 @@
         border-bottom 1px solid themeColor
     .chatField
         grid-area chatField
-        padding 5px 10px
+        padding 5px 5px
         overflow auto
         flex 1
+        position relative
     .inputField
         grid-area inputField
         display flex
@@ -28,6 +29,32 @@
         border-top 1px solid themeColor
         background greyColor
         position relative
+        .ToBottom
+            position absolute
+            font-size 24px
+            width 40px
+            height 40px
+            border-radius 4px
+            border 1px solid rgb(19, 199, 130)
+            color rgb(19, 199, 130)
+            right 20px
+            top -50px
+            line-height 40px
+            text-align center
+            cursor pointer
+        .ToTop
+            position absolute
+            font-size 24px
+            width 40px
+            height 40px
+            border-radius 4px
+            border 1px solid rgb(19, 199, 130)
+            color rgb(19, 199, 130)
+            right 80px
+            top -50px
+            line-height 40px
+            text-align center
+            cursor pointer
         .previewImage
             height 140px
             position absolute
@@ -36,6 +63,11 @@
             padding 10px
             border-radius 4px
             border 2px solid greyColor
+            i
+                position absolute;
+                top -5px
+                right -8px
+                color red
             img
                 height 100%
             &::before
@@ -126,6 +158,15 @@
     .message
         align-items flex-start
 
+
+.button-enter
+    opacity 0
+.button-enter-active
+    transition all 1.2s
+.button-leave-to
+    opacity 0
+.button-leave-active
+    transition all 1.2s
 </style>
 
 <template lang="html">
@@ -136,7 +177,7 @@
         <div class="topBar">
             聊天室
         </div>
-        <div class="chatField">
+        <div class="chatField" @scroll="scroll">
             <div v-for="item in items" :class="[{profile: item.usr !== user.usr}, 'profile-self']">
                 <div class="name">
                     {{item.usr}}
@@ -149,11 +190,22 @@
             </div>
         </div>
         <div class="inputField">
-            <div class="previewImage" v-if="hasAddImage">
+            <transition name='button'>
+                <div class="ToTop" v-show="offsetBtn" @click='toTop'>
+                    <i class="el-icon-upload2"></i>
+                </div>
+            </transition>
+            <transition name='button'>
+                <div class="ToBottom" v-show="offsetBtn" @click='toBottom'>
+                    <i class="el-icon-download"></i>
+                </div>
+            </transition>
+            <div class="previewImage" v-if="hasImage">
                 <img :src="message.imgUrl" alt="">
+                <i class="el-icon-error" @click="delImage"></i>
             </div>
             <div class="addImage">
-                <input type="file" @change='changeImage'>
+                <input type="file" @change='addImage'>
                 <i class="el-icon-plus"></i>
             </div>
             <el-input
@@ -164,13 +216,14 @@
               @keyup.enter='submit'
               >
             </el-input>
-            <el-button type='primary' @click='submit'>发送</el-button>
+            <el-button type='primary' @click='submit' :disabled="disableButton">发送</el-button>
         </div>
     </div>
 </template>
 
 
 <script>
+import axios from 'axios'
 export default {
     data() {
         return {
@@ -178,13 +231,14 @@ export default {
                 text: '',
                 imgUrl: '',
             },
-            hasAddImage: false,
             items: [],
+            offsetBtn: false,
         }
     },
     computed: {
-        count() {
-            return Object.key(this.userList).length
+
+        socket() {
+            return this.$store.state.socket
         },
         user() {
             return this.$store.state.user
@@ -192,9 +246,16 @@ export default {
         userList() {
             return this.$store.state.userList
         },
-        socket() {
-            return this.$store.state.socket
+
+
+        hasImage() {
+            return this.message.imgUrl !== ''
         },
+        disableButton() {
+            return this.message.text === '' && this.message.imgUrl === ''
+        },
+
+
     },
     methods: {
         notify(title) {
@@ -202,7 +263,26 @@ export default {
                 title,
             })
         },
-        submit() {
+        addImage(e) {
+            let file = e.target.files[0]
+            let reader = new FileReader()
+            reader.onload = () => {
+                this.message.imgUrl = reader.result
+            }
+            reader.readAsDataURL(file)
+        },
+
+        delImage() {
+            this.message.imgUrl = ''
+        },
+
+        async submit() {
+            if (this.message.text !== '') {
+                this.socket.emit('ChatToRobot', {
+                    id: this.socket.id,
+                    text: this.message.text,
+                })
+            }
             this.socket.emit('chat', {
                 id: this.socket.id,
                 text: this.message.text,
@@ -210,19 +290,27 @@ export default {
             })
             this.message.text = ''
             this.message.imgUrl = ''
-            this.hasAddImage = false
         },
-        changeImage(e) {
-            let file = e.target.files[0]
-            if (file) {
-                this.hasAddImage = true
+
+        scroll() {
+            if (!this.offsetBtn) {
+                this.offsetBtn = true
+                setTimeout(_ => {
+                    this.offsetBtn = false
+                }, 1200)
             }
-            let reader = new FileReader()
-            reader.onload = () => {
-                this.message.imgUrl = reader.result
-            }
-            reader.readAsDataURL(file)
-        }
+        },
+
+        toBottom() {
+            let div = document.querySelector('.chatField')
+            div.scrollTop = div.scrollHeight - div.clientHeight
+        },
+
+        toTop() {
+            let div = document.querySelector('.chatField')
+            div.scrollTop = 0
+        },
+
     },
     beforeRouteEnter(to, from, next) {
         let token = document.cookie.split(';')[0].split('=')[0]
@@ -245,7 +333,7 @@ export default {
             this.socket.emit('login', this.$store.state.user)
             this.socket.on('login', data => {
                 this.$store.commit('updateUserList', data)
-                // this.notify(`${this.userList[data.id].usr} join room`)
+                // this.notify(`someone join room`)
             })
             this.socket.on('logout', data => {
                 // this.notify(`${this.userList[data].usr} leave room`)

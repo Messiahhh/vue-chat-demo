@@ -1,7 +1,7 @@
 <style lang="stylus" scoped>
 @import '../../assets/css/global.styl'
-.slideBar
-    flex-basis 280px
+section
+    height 100%
     overflow auto
     padding 0 30px
     background greyColor
@@ -64,7 +64,7 @@
 </style>
 
 <template lang="html">
-    <div class="slideBar">
+    <section>
         <div class="image" :style="{backgroundImage: 'url(' + imgUrl + ')'}">
             <div class="changeImage" v-if='isEditing'>
                 <input type="file" class='upload' @change="changeFile">
@@ -125,7 +125,7 @@
                 </el-form>
             </div>
         </template>
-    </div>
+    </section>
 </template>
 
 <script>
