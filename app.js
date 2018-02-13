@@ -173,4 +173,12 @@ io.on('connection', function(socket) {
             text: res.text,
         })
     })
+
+    socket.on('ringSB', data => {
+        let {from, to} = data
+        socket.to(to).emit('ringSB', {
+            from,
+            to,
+        })
+    })
 });

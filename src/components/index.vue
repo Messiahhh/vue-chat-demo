@@ -167,10 +167,13 @@
     opacity 0
 .button-leave-active
     transition all 1.2s
+
+.absolute
+    position fixed
 </style>
 
 <template lang="html">
-    <div class="container">
+    <div class="container" @click="hiddenMenu">
         <div class="slideBar">
             <router-view></router-view>
         </div>
@@ -182,7 +185,7 @@
                 <div class="name">
                     {{item.usr}}
                 </div>
-                <router-link :to="{ name: 'profile', params: {usr: item.usr} }" class="image" :style="{backgroundImage: `url(${item.imgUrl})`}"></router-link>
+                <router-link :to="{ name: 'profile', params: {usr: item.usr} }" class="image" :style="{backgroundImage: `url(${item.imgUrl})`}" @click.native.right.prevent="displayMenu" :data-id="item.id"></router-link>
                 <div class="message">
                     <img v-if="item.messageUrl" :src="item.messageUrl" alt="">
                     <span v-if="item.text.length !== 0">{{item.text}}</span>
@@ -218,12 +221,15 @@
             </el-input>
             <el-button type='primary' @click='submit' :disabled="disableButton">发送</el-button>
         </div>
+        <el-menu v-show="menu.display" :top="menu.top" :left="menu.left" :id="menu.toWho" @click.native="clickMenu" @clickItem="clickItem"></el-menu>
     </div>
 </template>
 
 
 <script>
 import axios from 'axios'
+import menu from './partials/menu.vue'
+
 export default {
     data() {
         return {
@@ -231,12 +237,17 @@ export default {
                 text: '',
                 imgUrl: '',
             },
+            menu: {
+                toWho: '',
+                display: false,
+                top: '',
+                left: '',
+            },
             items: [],
             offsetBtn: false,
         }
     },
     computed: {
-
         socket() {
             return this.$store.state.socket
         },
@@ -311,6 +322,29 @@ export default {
             div.scrollTop = 0
         },
 
+        displayMenu(e) {
+            let id = e.target.dataset.id
+            let {clientX: left, clientY: top} = e
+            this.menu.toWho = id
+            this.menu.top = top
+            this.menu.left = left
+            this.menu.display = true
+        },
+
+        hiddenMenu() {
+            if (this.menu.display) {
+                this.menu.display = false
+            }
+        },
+
+        clickMenu(e) {
+            e.stopPropagation()
+        },
+
+        clickItem() {
+            this.menu.display = false
+        }
+
     },
     beforeRouteEnter(to, from, next) {
         let token = document.cookie.split(';')[0].split('=')[0]
@@ -342,9 +376,15 @@ export default {
             this.socket.on('chat', data => {
                 this.items.push(data)
             })
+
+            this.socket.on('ringSB', data => {
+                this.notify(`${this.userList[data.from].usr} 艾特了你`)
+            })
         })
+    },
 
-
+    components: {
+        'el-menu': menu
     }
 }
 </script>
