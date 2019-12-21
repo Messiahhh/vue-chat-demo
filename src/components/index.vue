@@ -1,5 +1,8 @@
 <style lang="stylus">
 @import '../assets/css/global.styl'
+
+
+
 .container
     height 100vh
     display grid
@@ -16,6 +19,11 @@
         line-height 50px
         text-align center
         border-bottom 1px solid themeColor
+        cursor pointer
+        span
+            margin-left 12px
+            font-size 14px
+            color #999
     .chatField
         grid-area chatField
         padding 5px 5px
@@ -160,16 +168,24 @@
 
 
 .button-enter
-    opacity 0
-.button-enter-active
-    transition all 1.2s
 .button-leave-to
     opacity 0
+.button-enter-active
 .button-leave-active
     transition all 1.2s
 
-.absolute
-    position fixed
+
+
+/* @media screen and (max-width: 640px)
+    .container
+        grid-template-columns 1fr
+        grid-template-rows 50px 1fr 80px
+        grid-template-areas "topBar"\
+                            "chatField"\
+                            "inputField"\
+
+        .slideBar
+            display none */
 </style>
 
 <template lang="html">
@@ -177,8 +193,8 @@
         <div class="slideBar">
             <router-view></router-view>
         </div>
-        <div class="topBar">
-            聊天室
+        <div class="topBar" @click="displayDialog">
+            聊天室 <span>{{count}}人在线</span>
         </div>
         <div class="chatField" @scroll="scroll">
             <div v-for="item in items" :class="[{profile: item.usr !== user.usr}, 'profile-self']">
@@ -188,7 +204,7 @@
                 <router-link :to="{ name: 'profile', params: {usr: item.usr} }" class="image" :style="{backgroundImage: `url(${item.imgUrl})`}" @click.native.right.prevent="displayMenu" :data-id="item.id"></router-link>
                 <div class="message">
                     <img v-if="item.messageUrl" :src="item.messageUrl" alt="">
-                    <span v-if="item.text.length !== 0">{{item.text}}</span>
+                    <span v-if="item.text.length !== 0" @click.right.prevent='displayMenuText'>{{item.text}}</span>
                 </div>
             </div>
         </div>
@@ -221,7 +237,14 @@
             </el-input>
             <el-button type='primary' @click='submit' :disabled="disableButton">发送</el-button>
         </div>
-        <el-menu v-show="menu.display" :top="menu.top" :left="menu.left" :id="menu.toWho" @click.native="clickMenu" @clickItem="clickItem"></el-menu>
+        <el-menutext v-show="menuText.display" :top="menuText.top" :left="menuText.left" :id="menuText.toWho" @clickItem="clickItemText"></el-menutext>
+        <el-menu v-show="menu.display" :top="menu.top" :left="menu.left" :id="menu.toWho" @clickItem="clickItem"></el-menu>
+        <el-dialog title="Group Info" :visible.sync="dialogVisible">
+            <group></group>
+            <span slot="footer" class="dialog-footer">
+                <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
@@ -229,6 +252,8 @@
 <script>
 import axios from 'axios'
 import menu from './partials/menu.vue'
+import menuText from './partials/menu-text'
+import group from './partials/group'
 
 export default {
     data() {
@@ -243,8 +268,15 @@ export default {
                 top: '',
                 left: '',
             },
+            menuText: {
+                toWho: '',
+                display: false,
+                top: '',
+                left: '',
+            },
             items: [],
             offsetBtn: false,
+            dialogVisible: false,
         }
     },
     computed: {
@@ -258,7 +290,9 @@ export default {
             return this.$store.state.userList
         },
 
-
+        count() {
+            return Object.keys(this.userList).length
+        },
         hasImage() {
             return this.message.imgUrl !== ''
         },
@@ -322,6 +356,9 @@ export default {
             div.scrollTop = 0
         },
 
+
+
+
         displayMenu(e) {
             let id = e.target.dataset.id
             let {clientX: left, clientY: top} = e
@@ -332,17 +369,31 @@ export default {
         },
 
         hiddenMenu() {
-            if (this.menu.display) {
+            if (this.menu.display || this.menuText.display) {
                 this.menu.display = false
+                this.menuText.display = false
             }
-        },
-
-        clickMenu(e) {
-            e.stopPropagation()
         },
 
         clickItem() {
             this.menu.display = false
+        },
+
+        clickItemText() {
+            this.menuText.display = false
+        },
+
+        displayDialog() {
+            this.dialogVisible = true
+        },
+
+        displayMenuText(e) {
+            let id = e.target.dataset.id
+            let {clientX: left, clientY: top} = e
+            this.menuText.toWho = id
+            this.menuText.top = top
+            this.menuText.left = left
+            this.menuText.display = true
         }
 
     },
@@ -384,7 +435,9 @@ export default {
     },
 
     components: {
-        'el-menu': menu
+        'el-menu': menu,
+        group,
+        'el-menutext': menuText,
     }
 }
 </script>

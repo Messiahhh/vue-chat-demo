@@ -1,19 +1,16 @@
 <style lang="stylus" scoped>
 @import '../../assets/css/global.styl'
 section
-    height 100%
-    overflow auto
-    background greyColor
-    border-right 1px solid themeColor
+    width 100%
+    background #fff
     .count
-        width 280px
-        height 50px
-        line-height 50px
+        padding 5px 0
         text-align center
         color themeColor
     .users
+        overflow auto
         display grid
-        grid-template-columns 1fr 1fr 1fr
+        grid-template-columns 1fr 1fr 1fr 1fr 1fr 1fr 1fr
         grid-row-gap 4px
         justify-items center
         .user
@@ -33,7 +30,7 @@ section
 </style>
 
 <template lang="html">
-    <section >
+    <section>
         <div class='count'>在线人数 {{count}}</div>
         <div class="users">
             <div class="user" v-for="key,val in userList">
@@ -49,6 +46,7 @@ section
 
 <script>
 export default {
+    name: 'group',
     data() {
         return {
         }

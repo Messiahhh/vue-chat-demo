@@ -49,6 +49,7 @@ router
             resume,
         }
         let file = ctx.request.body.files.file
+        console.log(file);
         let filename
         if (file) {
             filename = `${uniqueString()}.jpg`

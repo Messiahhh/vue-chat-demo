@@ -4,8 +4,14 @@ import index from '@/components/index'
 import signin from '@/components/signin'
 import signup from '@/components/signup'
 import profile from '@/components/sub/profile'
-import group from '@/components/sub/group'
+import room from '@/components/sub/room'
+
+// 代码测试
 import test from '@/components/test'
+let a = () => import(/* webpackChunkName: "test" */'@/components/a')
+let b = () => import('@/components/b')
+
+
 Vue.use(Router)
 
 export default new Router({
@@ -22,9 +28,9 @@ export default new Router({
                     props: true,
                 },
                 {
-                    name: 'group',
+                    name: 'room',
                     path: '',
-                    component: group,
+                    component: room,
                 }
             ]
         },
@@ -39,8 +45,18 @@ export default new Router({
             component: signin,
         },
         {
-            'path': '/test',
+            path: '/test',
             component: test,
+            children: [
+                {
+                    path: 'a',
+                    component: a
+                },
+                {
+                    path: 'b',
+                    component: b
+                }
+            ]
         }
 
     ]

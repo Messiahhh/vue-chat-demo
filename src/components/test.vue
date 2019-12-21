@@ -1,7 +1,9 @@
 <template lang="html">
     <div class="">
-        {{test}}
-        <button type="button" @click='click'>点击</button>
+
+        <button type="button" @click="toA">toA</button>
+        <button type="button" @click="toB">toB</button>
+        <router-view></router-view>
     </div>
 </template>
 
@@ -9,24 +11,17 @@
 export default {
     data() {
         return {
-            obj: {
-                a: 'a',
-                b: 'b',
-            }
-        }
-    },
-    computed: {
-        test() {
-            return this.obj
+            message: "测试页面"
         }
     },
     methods: {
-        click() {
-            this.obj.c = 'xxx'
+        toA() {
+            this.$router.push({ path : "/test/a"})
+        },
+        toB() {
+            this.$router.push({ path : "/test/b"})
         }
     }
+
 }
 </script>
-
-<style lang="css">
-</style>

@@ -1,14 +1,8 @@
 <template lang="html">
     <transition name='menu'>
         <div class="menu" :style="{top: `${top}px`, left: realLeft}">
-            <div class="menu-item" @click="ringSB">
-                @{{usr}}
-            </div>
-            <div class="menu-item" @click="clickItem">
-                发送信息
-            </div>
-            <div class="menu-item" @click="clickItem">
-                添加好友
+            <div class="menu-item" @click="copyText">
+                Copy Text
             </div>
         </div>
     </transition>
@@ -16,7 +10,7 @@
 
 <script>
 export default {
-    name: 'el-menu',
+    name: 'el-menutext',
     props: ['left', 'top', 'id'],
     data () {
         return {
@@ -54,14 +48,12 @@ export default {
             this.$emit('clickItem')
         },
 
-        ringSB(e) {
+        copyText(e) {
             e.stopPropagation()
             this.clickItem()
-            this.socket.emit('ringSB', {
-                from: this.user.id,
-                to: this.id,
-            })
+            console.log(e.target.innerText)
         }
+
     }
 }
 </script>
